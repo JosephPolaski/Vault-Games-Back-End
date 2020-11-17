@@ -15,7 +15,7 @@ This repository contains the server architecture for the vault games administrat
 - If you already have a working copy of the repository skip steps 1 and 2.
 
 ```
-git clone https://github.com/JosephPolaski/cs340-group47-project-front.git
+git clone https://github.com/JosephPolaski/cs340-group47-project-back.git
 ```
 2. Create a new working branch for yourself using the following command and naming format to signify that it is a development branch.
 
