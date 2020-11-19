@@ -10,5 +10,5 @@ var pool = mysql.createPool({
     database        :   process.env.VAULT_DB_NAME
 });
 
-//Export Module
+//Export Pool
 module.exports.pool = pool;
