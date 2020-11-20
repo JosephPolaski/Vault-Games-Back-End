@@ -23,21 +23,20 @@ const port = process.env.PORT;
 // ***********************
 // ****** Customers ******
 // ***********************
-// Showing all customers
 const queryAllCustomers = 'SELECT * FROM customers' ;
 const insertCustomer = 'INSERT INTO customers(`first_name`, `last_name`, `email`) VALUES (?, ?, ?)' ;
 
 // **********************
 // ****** Products ******
 // **********************
-// Showing all products
 const queryAllProducts = 'SELECT * FROM products' ;
+const insertProduct = 'INSERT INTO products (`title`, `publisher`, `platform`, `genre`, `rating`, `quantity`, `price`) VALUES (?, ?, ?, ?, ?, ?, ?)' ;
 
 // ***********************
 // ****** Addresses ******
 // ***********************
-// Showing all Addresses
 const queryAllAddresses = 'SELECT * FROM addresses' ;
+const insertAddress = 'INSERT INTO addresses(`line_1`, `line_2`, `apt_num`, `city`, `zip_code`, `state`) VALUES (?, ?, ?, ?, ?, ?)' ;
 
 // *******************************
 // ****** AGGREGATE QUERIES ******
@@ -154,9 +153,9 @@ app.get('/completedOrders', (req, res, next) => {
 // ****** CUSTOMERS ******
 // ***********************
 
-// const insertCustomer = 'INSERT INTO customers(`first_name`, `last_name`, `email`) VALUES (?, ?, ?)' ;
-
 // ****** INSERT ******
+// Using Query:
+// insertCustomer = 'INSERT INTO customers(`first_name`, `last_name`, `email`) VALUES (?, ?, ?)'
 app.post('/insertCustomer' , (req,res,next) => {
   var context = {};
   // Object destructuring -- stores following properties from that object and
@@ -177,7 +176,60 @@ app.post('/insertCustomer' , (req,res,next) => {
   });
 });
 
+// ***********************
+// ****** ADDRESSES ******
+// ***********************
+
+// ****** INSERT ******
+// Using Query:
+// insertAddress = 'INSERT INTO addresses(`line_1`, `line_2`, `apt_num`, `city`, `zip_code`, `state`) VALUES (?, ?, ?, ?, ?, ?);'
+app.post('/insertAddress' , (req,res,next) => {
+  var context = {};
+  // Object destructuring -- stores following properties from that object and
+  // storing them into variables with the following names
+  var main_address = req.body['line_1']; 
+  console.log(req.body)
+  var {line_1, line_2, apt_num, city, zip_code, state} = req.body;
+  mysql.pool.query(
+      insertAddress,
+      [line_1, line_2, apt_num, city, zip_code, state],
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+    }
+    res.send(`You have added ${main_address}`);
+  });
+});
+
+// **********************
+// ****** PRODUCTS ******
+// **********************
+
+// ****** INSERT ******
+// Using Query:
+// const insertProduct = 'INSERT INTO products (`title`, `publisher`, `platform`, `genre`, `rating`, `quantity`, `price`) VALUES (?, ?, ?, ?, ?, ?, ?)'
+app.post('/insertProduct' , (req,res,next) => {
+  var context = {};
+  // Object destructuring -- stores following properties from that object and
+  // storing them into variables with the following names
+  var product_name = req.body['title']; 
+  console.log(req.body)
+  var {title, publisher, platform, genre, rating, quantity, price} = req.body;
+  mysql.pool.query(
+      insertProduct,
+      [title, publisher, platform, genre, rating, quantity, price],
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+    }
+    res.send(`You have added ${product_name}`);
+  });
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://flip3.engr.oregonstate.edu:${port}`)
+  console.log(`Example app listening at http://flip2.engr.oregonstate.edu:${port}`)
 });
