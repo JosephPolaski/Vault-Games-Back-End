@@ -7,16 +7,18 @@ require('dotenv').config()
 var mysql = require('./dbcon.js');
 
 // requiring Cross Origin Resource Sharing
-var cors = require('cors');
+var CORS = require('cors');
 
 const express = require('express');
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(CORS());
 
 // Access-Controll-Allow
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // set domain to client
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");  
   next();
 });
 
@@ -194,22 +196,22 @@ app.get('/allOrders', (req, res, next) => {
 // Using Query:
 // insertCustomer = 'INSERT INTO customers(`first_name`, `last_name`, `email`) VALUES (?, ?, ?)'
 app.post('/insertCustomer' , (req,res,next) => {
-  var context = {};
+  console.log(req.body);
   // Object destructuring -- stores following properties from that object and
   // storing them into variables with the following names
-  var first_name = req.body['first_name']; 
-  var last_name = req.body['last_name'];
-  var {first_name, last_name, email} = req.body;
+  var fname = req.body['first_name']; 
+  var lname = req.body['last_name'];
+  var {fname, lname, email} = req.body;  
   mysql.pool.query(
       insertCustomer,
-      [first_name, last_name, email],
+      [fname, lname, email],
       // call back occurs once query is completed
       (err, result) => {
         if(err){
           next(err);
           return;
     }
-    res.send(`You have added ${first_name} ${last_name}`);
+    res.send(`You have added ${fname} ${lname}`);
   });
 });
 
@@ -248,7 +250,6 @@ app.post('/insertAddress' , (req,res,next) => {
 // Using Query:
 // const insertProduct = 'INSERT INTO products (`title`, `publisher`, `platform`, `genre`, `rating`, `quantity`, `price`) VALUES (?, ?, ?, ?, ?, ?, ?)'
 app.post('/insertProduct' , (req,res,next) => {
-  var context = {};
   // Object destructuring -- stores following properties from that object and
   // storing them into variables with the following names
   var product_name = req.body['title']; 
