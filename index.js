@@ -13,6 +13,13 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+// Access-Controll-Allow
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*"); // set domain to client
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 // This is for security so the port is not shown
 const port = process.env.PORT;
 
@@ -35,7 +42,11 @@ const insertProduct = 'INSERT INTO products (`title`, `publisher`, `platform`, `
 // ***********************
 // ****** Addresses ******
 // ***********************
-const queryAllAddresses = 'SELECT * FROM addresses' ;
+const queryAllAddresses = `SELECT customers.customer_id, customers.first_name, customers.last_name, addresses.line_1, addresses.city, addresses.state, addresses.zip_code
+                           FROM customers
+                           JOIN customer_addresses ON customer_addresses.customer_id = customers.customer_id
+                           JOIN addresses ON customer_addresses.address_id = addresses.address_id`
+
 const insertAddress = 'INSERT INTO addresses(`line_1`, `line_2`, `apt_num`, `city`, `zip_code`, `state`) VALUES (?, ?, ?, ?, ?, ?)' ;
 
 // *******************************
@@ -231,5 +242,5 @@ app.post('/insertProduct' , (req,res,next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://flip2.engr.oregonstate.edu:${port}`)
+  console.log(`Example app listening at http://flip3.engr.oregonstate.edu:${port}`)
 });
