@@ -33,6 +33,16 @@ const port = process.env.PORT;
 const queryAllCustomers = 'SELECT * FROM customers' ;
 const insertCustomer = 'INSERT INTO customers(`first_name`, `last_name`, `email`) VALUES (?, ?, ?)' ;
 
+// ***********************
+// ****** Orders ******
+// ***********************
+const queryAllOrders = `SELECT orders.order_id, CONCAT(customers.first_name," ",customers.last_name), orders.order_status, orders.date_ordered, orders.total_price
+                        FROM orders
+                        JOIN products_purchased ON orders.order_id = products_purchased.order_id
+                        JOIN customers ON products_purchased.customer_id = customers.customer_id
+                        GROUP BY orders.order_id  
+                        ORDER BY orders.order_id ASC` ;
+
 // **********************
 // ****** Products ******
 // **********************
@@ -50,7 +60,7 @@ const queryAllAddresses = `SELECT customers.customer_id, customers.first_name, c
 const insertAddress = 'INSERT INTO addresses(`line_1`, `line_2`, `apt_num`, `city`, `zip_code`, `state`) VALUES (?, ?, ?, ?, ?, ?)' ;
 
 // *******************************
-// ****** AGGREGATE QUERIES ******
+// ****** AGGREGATE QUERIES ****** 
 // *******************************
 
 // Count of all customers
@@ -155,6 +165,22 @@ app.get('/completedOrders', (req, res, next) => {
     res.send(context); 
   });
 });
+
+// ****** Orders ******
+// Return all orders
+app.get('/allOrders', (req, res, next) => {
+  var context = {};
+  mysql.pool.query(queryAllOrders, (error, results, fields) => {
+    if(error){
+      next(error);
+      return;
+    }
+    context.results = results; 
+    console.log(context.results) 
+    res.send(context);
+  });
+});
+
 
 // ***********************************
 // ********** POST REQUESTS **********
