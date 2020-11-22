@@ -76,6 +76,17 @@ const completedOrders = "SELECT COUNT(order_status) AS completeOrders FROM order
 // Sum of all available products
 const availableProducts = 'SELECT SUM(products.quantity) AS availableProducts FROM products'
 
+// Full aggregate query that pulls in all three:
+const fullCount = `SELECT COUNT(customers.customer_id) AS cpo
+                    FROM customers
+                    UNION
+                    SELECT SUM(products.quantity)
+                    FROM products
+                    UNION
+                    SELECT COUNT(orders.order_status)
+                    FROM orders
+                    WHERE orders.order_status = 'Filled'` ;
+
 // **********************************
 // ********** GET REQUESTS **********
 // **********************************
@@ -98,9 +109,9 @@ app.get('/allCustomers', (req, res, next) => {
 });
 
 // AGGREGATE Request to return total customer count
-app.get('/customerCount', (req, res, next) => {
+app.get('/fullCount', (req, res, next) => {
   var context = {};
-  mysql.pool.query(customerCount, (error, results, fields) => {
+  mysql.pool.query(fullCount, (error, results, fields) => {
     if(error){
       next(error); 
       return;
@@ -156,7 +167,7 @@ app.get('/allAddresses', (req, res, next) => {
 });
 
 // ****** ORDERS ******
-// Get Request to return total filled orders
+// AGGREGATE Get Request to return total filled orders
 app.get('/completedOrders', (req, res, next) => {
   var context = {};
   mysql.pool.query(completedOrders, (error, results, fields) => {
@@ -301,5 +312,5 @@ app.post('/insertProduct' , (req,res,next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://flip3.engr.oregonstate.edu:${port}`)
+  console.log(`Example app listening at http://flip2.engr.oregonstate.edu:${port}`)
 });
