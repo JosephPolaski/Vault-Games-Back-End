@@ -15,6 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(CORS());
 
+const url = require('url');
+
 // Access-Controll-Allow
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // set domain to client
@@ -180,6 +182,36 @@ app.get('/allOrders', (req, res, next) => {
     context.results = results; 
     console.log(context.results) 
     res.send(context);
+  });
+});
+
+// ORDER HISTORY 
+app.get('/orderHistory' , (req,res,next) => {
+
+  let strip1 = req.url.split("?");
+  let strip2 = strip1[1].split("&");
+  let strip3 = strip2[0].split("=");
+  let strip4 = strip2[1].split("=");
+  let fname = strip3[1];
+  let lname = strip4[1];
+
+  var context = {};   
+  mysql.pool.query(
+    `SELECT orders.order_id, CONCAT(customers.first_name, " ", customers.last_name), orders.order_status, orders.date_ordered, orders.total_price
+    FROM orders 
+    JOIN products_purchased ON orders.order_id = products_purchased.order_id
+    JOIN customers ON products_purchased.customer_id = customers.customer_id
+    AND customers.first_name = "`+ fname +`"AND customers.last_name = "` + lname + `"
+    GROUP BY orders.order_id`,
+    // call back occurs once query is completed
+    (error, results, fields) => {
+      if(error){
+        next(error);
+        return;
+      }
+  
+      context.results = results; 
+      res.send(context);
   });
 });
 
