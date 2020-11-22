@@ -7,7 +7,8 @@ var pool = mysql.createPool({
     host            :   process.env.VAULT_HOST,
     user            :   process.env.VAULT_USER,
     password        :   process.env.VAULT_PASS,
-    database        :   process.env.VAULT_DB_NAME
+    database        :   process.env.VAULT_DB_NAME,
+    multipleStatements: true
 });
 
 //Export Pool

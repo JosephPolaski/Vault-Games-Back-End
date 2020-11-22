@@ -247,6 +247,38 @@ app.post('/insertCustomer' , (req,res,next) => {
   });
 });
 
+// insertCustAddr
+// creates M:M relationship
+app.post('/insertCustAddress' , (req,res,next) => {
+  console.log(req.body);
+  // Object destructuring -- stores following properties from that object and
+  // storing them into variables with the following names
+  var cid = req.body['cid']; 
+  var addr1 = req.body['addr1'];
+  var addr2 = req.body['addr2'];
+  var city = req.body['city'];
+  var state = req.body['state']
+  var zip = req.body['zip']
+
+  mysql.pool.query(
+      `INSERT INTO 
+       addresses(line_1, line_2, apt_num, city, zip_code, state) 
+       VALUES ('`+ addr1 +`', '`+ addr2 +`','NULL','`+ city +`','`+ zip +`','`+ state +`');       
+       SET @address_id = LAST_INSERT_ID();       
+       INSERT INTO 
+       customer_addresses(customer_id, address_id) 
+       VALUES
+       (`+ cid +`, @address_id);`,
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+    }
+    res.send(`Great Success!`);
+  });
+});
+
 // ***********************
 // ****** ADDRESSES ******
 // ***********************
