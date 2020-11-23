@@ -290,6 +290,36 @@ app.post('/insertCustAddress' , (req,res,next) => {
   });
 });
 
+// INSERT CUSTOMER ORDER
+app.post('/insertCustOrder' , (req,res,next) => {
+  console.log(req.body)
+  
+  //Object destructuring -- stores following properties from that object and
+  //storing them into variables with the following names
+  let cid = req.body['cid'];
+  let titles = req.body['itemNames[]']; // no idea why the keys have [] at the end
+  let quant = req.body['itemQuantities[]'];
+  let price = req.body['total'];
+
+  console.log(cid)
+  console.log(titles);
+  console.log(quant);
+ 
+  mysql.pool.query(
+      `
+      INSERT INTO orders (customer_id, order_status, date_ordered, total_price) VALUES
+      (`+cid+`, 'Opened', CURRENT_DATE, `+price+`)`,
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+    }
+    res.send('Order Added Successfully');
+  });
+  
+});
+
 // ***********************
 // ****** ADDRESSES ******
 // ***********************
@@ -344,5 +374,5 @@ app.post('/insertProduct' , (req,res,next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://flip2.engr.oregonstate.edu:${port}`)
+  console.log(`Example app listening at http://flip1.engr.oregonstate.edu:${port}`)
 });
