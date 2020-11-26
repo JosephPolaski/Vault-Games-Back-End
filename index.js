@@ -37,8 +37,16 @@ const port = process.env.PORT;
 const queryAllCustomers = 'SELECT * FROM customers' ;
 const insertCustomer = 'INSERT INTO customers(`first_name`, `last_name`, `email`) VALUES (?, ?, ?)' ;
 
+// When a customer is deleted, all of the addresses of that customer are also deleted
+const deleteCustomer = `DELETE addresses
+                        FROM addresses
+                        JOIN customer_addresses ON addresses.address_id = customer_addresses.address_id
+                        JOIN customers ON customer_addresses.customer_id = customers.customer_id
+                        WHERE customers.customer_id = ?;
+                        DELETE FROM customers WHERE customer_id = ?`
+
 // ***********************
-// ****** Orders ******
+// ****** Orders *********
 // ***********************
 const queryAllOrders = `SELECT orders.order_id, CONCAT(customers.first_name," ",customers.last_name), orders.order_status, orders.date_ordered, orders.total_price
                         FROM orders
@@ -56,7 +64,7 @@ const insertProduct = 'INSERT INTO products (`title`, `publisher`, `platform`, `
 // ***********************
 // ****** Addresses ******
 // ***********************
-const queryAllAddresses = `SELECT customers.customer_id, customers.first_name, customers.last_name, addresses.line_1, addresses.city, addresses.state, addresses.zip_code
+const queryAllAddresses = `SELECT addresses.address_id, customers.first_name, customers.last_name, addresses.line_1, addresses.city, addresses.state, addresses.zip_code
                            FROM customers
                            JOIN customer_addresses ON customer_addresses.customer_id = customers.customer_id
                            JOIN addresses ON customer_addresses.address_id = addresses.address_id`
@@ -373,6 +381,65 @@ app.post('/insertProduct' , (req,res,next) => {
   });
 });
 
+// *************************************
+// ********** DELETE REQUESTS **********
+// *************************************
+
+
+// ***********************
+// ****** ADDRESSES ******
+// ***********************
+app.delete('/deleteAddress' , (req,res,next) => {
+  console.log(req.body)
+  //Object destructuring -- stores following properties from that object and
+  //storing them into variables with the following names
+  let aid = req.body['aid'];
+  console.log(aid)
+
+  mysql.pool.query(
+      `
+      DELETE FROM addresses WHERE address_id = `+aid+`;` ,
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+    }
+    res.send('Customer Address Removed');
+  });
+  
+});
+
+// ***********************
+// ****** CUSTOMERS ******
+// ***********************
+
+app.delete('/deleteCustomer' , (req,res,next) => {
+  console.log(req.body)
+  //Object destructuring -- stores following properties from that object and
+  //storing them into variables with the following names
+  let cid = req.body['cid'];
+  console.log(cid)
+
+  mysql.pool.query(
+    `
+    DELETE addresses
+    FROM addresses
+    JOIN customer_addresses ON addresses.address_id = customer_addresses.address_id
+    JOIN customers ON customer_addresses.customer_id = customers.customer_id
+    WHERE customers.customer_id = `+cid+`;
+    DELETE FROM customers WHERE customer_id = `+cid+`;`,
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+    }
+    res.send('Customer Address Removed');
+  });
+  
+});
+
 app.listen(port, () => {
-  console.log(`Example app listening at http://flip1.engr.oregonstate.edu:${port}`)
+  console.log(`Vault Games Server listening at http://flip2.engr.oregonstate.edu:${port}`)
 });
