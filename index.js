@@ -116,6 +116,31 @@ app.get('/allCustomers', (req, res, next) => {
   });
 });
 
+// CUSTOMER SEARCH
+app.get('/customerSearch' , (req,res,next) => {
+
+  let strip1 = req.url.split("?");
+  let strip2 = strip1[1].split("&");
+  let strip3 = strip2[0].split("=");
+  let lname = strip3[1];
+
+  var context = {};   
+  mysql.pool.query(
+    `SELECT *
+    FROM customers
+    WHERE customers.last_name LIKE '%` +lname+ `%'`,
+    // call back occurs once query is completed
+    (error, results, fields) => {
+      if(error){
+        next(error);
+        return;
+      }
+  
+      context.results = results; 
+      res.send(context);
+  });
+});
+
 // AGGREGATE Request to return total customer count
 app.get('/fullCount', (req, res, next) => {
   var context = {};
@@ -145,6 +170,34 @@ app.get('/allProducts', (req, res, next) => {
   });
 });
 
+// still need to work on productSearch...
+// app.get('/productSearch' , (req,res,next) => {
+
+//   let strip1 = req.url.split("?");
+//   let strip2 = strip1[1].split("&");
+//   let strip3 = strip2[0].split("=");
+//   let strip4 = strip3[0].split("=");
+//   let productTitle1 = strip3[1];
+//   let productTitle2 = strip4[1];
+//   let productTitle3 = strip5[1];
+
+//   var context = {};   
+//   mysql.pool.query(
+//     `SELECT *
+//     FROM products
+//     WHERE product.title LIKE '%` +productTitle+ `%'`,
+//     // call back occurs once query is completed
+//     (error, results, fields) => {
+//       if(error){
+//         next(error);
+//         return;
+//       }
+  
+//       context.results = results; 
+//       res.send(context);
+//   });
+// });
+
 // AGGREGATE Request to return total available products
 app.get('/availableProducts', (req, res, next) => {
   var context = {};
@@ -171,6 +224,34 @@ app.get('/allAddresses', (req, res, next) => {
     context.results = results; 
     console.log(context.results) 
     res.send(context);
+  });
+});
+
+// ADDRESS SEARCH BY CUSTOMER
+app.get('/addressSearch' , (req,res,next) => {
+
+  let strip1 = req.url.split("?");
+  let strip2 = strip1[1].split("&");
+  let strip3 = strip2[0].split("=");
+  let lname = strip3[1];
+
+  var context = {};   
+  mysql.pool.query(
+    `SELECT addresses.address_id, customers.first_name, customers.last_name, addresses.line_1, addresses.city, addresses.state, addresses.zip_code
+    FROM customers
+    JOIN customer_addresses ON customer_addresses.customer_id = customers.customer_id
+    JOIN addresses ON customer_addresses.address_id = addresses.address_id
+    WHERE customers.last_name LIKE '%` +lname+ `%'`,
+    
+    // call back occurs once query is completed
+    (error, results, fields) => {
+      if(error){
+        next(error);
+        return;
+      }
+  
+      context.results = results; 
+      res.send(context);
   });
 });
 
@@ -233,7 +314,6 @@ app.get('/orderHistory' , (req,res,next) => {
       res.send(context);
   });
 });
-
 
 // ***********************************
 // ********** POST REQUESTS **********
@@ -391,8 +471,6 @@ app.post('/insertProduct' , (req,res,next) => {
 // ***********************
 app.delete('/deleteAddress' , (req,res,next) => {
   console.log(req.body)
-  //Object destructuring -- stores following properties from that object and
-  //storing them into variables with the following names
   let aid = req.body['aid'];
   console.log(aid)
 
@@ -416,8 +494,6 @@ app.delete('/deleteAddress' , (req,res,next) => {
 
 app.delete('/deleteCustomer' , (req,res,next) => {
   console.log(req.body)
-  //Object destructuring -- stores following properties from that object and
-  //storing them into variables with the following names
   let cid = req.body['cid'];
   console.log(cid)
 
