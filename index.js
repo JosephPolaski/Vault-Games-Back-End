@@ -71,6 +71,10 @@ const queryAllAddresses = `SELECT addresses.address_id, customers.first_name, cu
 
 const insertAddress = 'INSERT INTO addresses(`line_1`, `line_2`, `apt_num`, `city`, `zip_code`, `state`) VALUES (?, ?, ?, ?, ?, ?)' ;
 
+const updateAddresses = `UPDATE addresses 
+                        SET line_1 = ?, line_2 = ?, apt_num = ?, city = ?, zip_code = ?, state = ? 
+                        WHERE address_id = ?`
+
 // *******************************
 // ****** AGGREGATE QUERIES ****** 
 // *******************************
@@ -447,7 +451,7 @@ app.post('/insertAddress' , (req,res,next) => {
 
 // ****** INSERT ******
 // Using Query:
-// const insertProduct = 'INSERT INTO products (`title`, `publisher`, `platform`, `genre`, `rating`, `quantity`, `price`) VALUES (?, ?, ?, ?, ?, ?, ?)'
+// insertProduct = 'INSERT INTO products (`title`, `publisher`, `platform`, `genre`, `rating`, `quantity`, `price`) VALUES (?, ?, ?, ?, ?, ?, ?)'
 app.post('/insertProduct' , (req,res,next) => {
   // Object destructuring -- stores following properties from that object and
   // storing them into variables with the following names
@@ -525,3 +529,32 @@ app.delete('/deleteCustomer' , (req,res,next) => {
 app.listen(port, () => {
   console.log(`Vault Games Server listening at http://flip2.engr.oregonstate.edu:${port}`)
 });
+
+// *************************************
+// ********** UPDATE REQUESTS **********
+// *************************************
+
+// ***********************
+// ****** ADDRESSES ******
+// ***********************
+// updateAddresses = 'UPDATE addresses SET line_1 = ?, line_2 = ?, apt_num = ?, city = ?, zip_code = ?, state = ? WHERE address_id = ?'
+app.put('/updateAddress' , (req,res,next) => {
+  // Object destructuring -- stores following properties from that object and
+  // storing them into variables with the following names
+  var addressUpdate = req.body['address']; 
+  console.log(req.body)
+  var {line_1, line_2, apt_num, city, zip, state, aid} = req.body;
+  mysql.pool.query(
+      updateAddresses,
+      [line_1, line_2, apt_num, city, zip, state, aid],
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+    }
+    res.send(`You have updated the address`);
+  });
+});
+// THIS STILL NEEDS TO BE WORKED ON
+// !!!!!!!!!
