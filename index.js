@@ -471,6 +471,36 @@ app.post('/insertProduct' , (req,res,next) => {
   });
 });
 
+// ********************
+// ****** ORDERS ******
+// ********************
+
+// INSERT CUSTOMER ORDER
+app.post('/insertCustOrder' , (req,res,next) => {
+  console.log(req.body)
+  
+  //Object destructuring -- stores following properties from that object and
+  //storing them into variables with the following names
+  let cid = req.body['cid'];
+  let pid = req.body['itemID[]']; // no idea why the keys have [] at the end
+  let quant = req.body['itemQuantities[]'];
+  let price = req.body['total'];
+  let order_num = 0;
+ 
+  mysql.pool.query(
+      `INSERT INTO orders (customer_id, order_status, date_ordered, total_price) VALUES
+      (`+cid+`, 'Opened', CURRENT_DATE, `+price+`)`,
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+        }
+    res.send('Order Added Successfully');
+  });
+  
+});
+
 // *************************************
 // ********** DELETE REQUESTS **********
 // *************************************
@@ -556,5 +586,3 @@ app.put('/updateAddress' , (req,res,next) => {
     res.send(`You have updated the address`);
   });
 });
-// THIS STILL NEEDS TO BE WORKED ON
-// !!!!!!!!!
