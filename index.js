@@ -556,10 +556,6 @@ app.delete('/deleteCustomer' , (req,res,next) => {
   
 });
 
-app.listen(port, () => {
-  console.log(`Vault Games Server listening at http://flip2.engr.oregonstate.edu:${port}`)
-});
-
 // *************************************
 // ********** UPDATE REQUESTS **********
 // *************************************
@@ -585,4 +581,8 @@ app.put('/updateAddress' , (req,res,next) => {
     }
     res.send(`You have updated the address`);
   });
+});
+
+app.listen(port, () => {
+  console.log(`Vault Games Server listening at http://flip1.engr.oregonstate.edu:${port}`)
 });
