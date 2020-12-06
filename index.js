@@ -465,7 +465,29 @@ app.post('/insertCustOrder' , (req,res,next) => {
         if(err){
           next(err);
           return;
-        }
+        } else {
+          mysql.pool.query(`SELECT MAX(order_id) FROM orders`, 
+            (err, result) => {
+              if(err){
+                next(err);
+                return;
+              } else {
+                let order_id = result[0]['MAX(order_id)'] // get last inserted order
+                
+                // add relationship for each product
+                for(let product_id in pid){
+                  mysql.pool.query(`INSERT INTO products_purchased (customer_id, product_id, order_id) VALUES (?, ?, ?)`,
+                  [cid, product_id, order_id],
+                  (err, result) => {
+                    if(err){
+                      next(err);
+                      return;
+                    }
+                  })
+                }
+              }
+            })
+          }
     res.send('Order Added Successfully');
   });
   
@@ -550,6 +572,22 @@ app.put('/updateAddress' , (req,res,next) => {
           return;
     }
     res.send(`You have updated the address`);
+  });
+});
+
+// return order
+app.put('/returnOrder' , (req,res,next) => {
+  
+  var order_id = req.body['oid']; 
+
+  mysql.pool.query(`UPDATE orders SET order_status = "Returned" WHERE order_id = ?`, order_id,
+      // call back occurs once query is completed
+      (err, result) => {
+        if(err){
+          next(err);
+          return;
+        }
+    res.send(`Order Returned`);
   });
 });
 
